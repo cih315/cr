@@ -9,6 +9,7 @@ var RedisConfig = &redis{
 }
 
 // DatabaseConfig 数据库配置
+/*
 var DatabaseConfig = &database{
 	Type:       "UNSET",
 	Charset:    "utf8",
@@ -16,10 +17,34 @@ var DatabaseConfig = &database{
 	Port:       3306,
 	UnixSocket: false,
 }
+*/
+/*
+var DatabaseConfig = &database{
+	Type:       "mysql",
+	Charset:    "utf8",
+	DBFile:     "cloudreve.db",
+	Host:       "localhost",
+	User:       "pan",
+	Password:   "sfslmOKKCl4LMYAb",
+	Port:       3306,
+	Name:       "pan",
+	UnixSocket: false,
+}*/
+var DatabaseConfig = &database{
+	Type:       "mysql",
+	Charset:    "utf8",
+	DBFile:     "cloudreve.db",
+	Host:       "localhost",
+	User:       "root",
+	Password:   "1qaz2wsx",
+	Port:       3306,
+	Name:       "pan",
+	UnixSocket: false,
+}
 
 // SystemConfig 系统公用配置
 var SystemConfig = &system{
-	Debug:       false,
+	Debug:       true,
 	Mode:        "master",
 	Listen:      ":5212",
 	ProxyHeader: "X-Forwarded-For",

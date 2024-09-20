@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-
 	model "github.com/cloudreve/Cloudreve/v3/models"
 	"github.com/cloudreve/Cloudreve/v3/pkg/authn"
 	"github.com/cloudreve/Cloudreve/v3/pkg/request"
@@ -230,6 +229,14 @@ func UserMe(c *gin.Context) {
 func UserStorage(c *gin.Context) {
 	currUser := CurrentUser(c)
 	res := serializer.BuildUserStorageResponse(*currUser)
+	c.JSON(200, res)
+}
+
+// UserSpace 获取用户中转空间
+func UserSpace(c *gin.Context) {
+	util.Log().Info("UserSpace endpoint hit")
+	currUser := CurrentUser(c)
+	res := serializer.BuildUserSpaceResponse(*currUser)
 	c.JSON(200, res)
 }
 

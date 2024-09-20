@@ -2,7 +2,9 @@ package serializer
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/cloudreve/Cloudreve/v3/pkg/util"
 	model "github.com/cloudreve/Cloudreve/v3/models"
 	"github.com/cloudreve/Cloudreve/v3/pkg/hashid"
 	"github.com/duo-labs/webauthn/webauthn"
@@ -16,6 +18,32 @@ func CheckLogin() Response {
 		Msg:  "Login required",
 	}
 }
+
+// MagnetUser 序列化器
+type MagnetUser struct {
+    UID           int       `json:"uid"`
+    Email         string    `json:"email"`
+    RegisterTime  time.Time `json:"register_time"`
+    FileBan       int       `json:"file_ban"`
+    Points        int       `json:"points"`
+    MaxView1      int       `json:"max_view_1"`
+    MaxView2      int       `json:"max_view_2"`
+    VipMaxView1   int       `json:"vip_max_view_1"`
+    VipMaxView2   int       `json:"vip_max_view_2"`
+    VipEndTime    int       `json:"vip_end_time"`
+    TotalPayment  float64   `json:"total_payment"`
+    Tiyan         int       `json:"tiyan"`
+    FavoriteSize  string    `json:"favorite_size"`
+    RegUUID       string    `json:"reg_uuid"`
+    RegIP         string    `json:"reg_ip"`
+    LoginUUID     string    `json:"login_uuid"`
+    LoginIP       string    `json:"login_ip"`
+    LastActivity  time.Time `json:"last_activity_time"`
+    RegChannel    string    `json:"reg_channel"`
+    Remark        string    `json:"remark"`
+    Token         string    `json:"token"`
+}
+
 
 // User 用户序列化器
 type User struct {
@@ -128,6 +156,40 @@ func BuildUserStorageResponse(user model.User) Response {
 	if total < user.Storage {
 		storageResp.Free = 0
 	}
+
+	return Response{
+		Data: storageResp,
+	}
+}
+
+func BuildUserSpaceResponse(user model.User) Response {
+
+	util.Log().Info(user.Email)
+
+//	chk, _:= model.CheckEmail(user.Email)
+	uinfo, _:= model.GetMagnetUserByEmail(user.Email)
+
+    // 将布尔值 chk 转换为字符串
+    util.Log().Info(fmt.Sprintf("UID result: %d", uinfo.UID)) // 使用 fmt.Sprintf
+	util.Log().Info(fmt.Sprintf("Email check result: %s", uinfo.Email)) // 使用 fmt.Sprintf
+	util.Log().Info(fmt.Sprintf("FavoriteSize: %s", uinfo.FavoriteSize)) // 使用 fmt.Sprintf
+	size, _ := model.GetTotalSizeByUID(uinfo.UID)
+	util.Log().Info(fmt.Sprintf("Use Size: %f", size)) // 使用 fmt.Sprintf
+
+	 // 将 FavoriteSize 转换为 uint64
+	 allSize, err := strconv.ParseUint(uinfo.FavoriteSize, 10, 64)
+	 if err != nil {
+		 // 处理错误，例如返回默认值或记录日志
+		 allSize = 0 // 或者根据需要处理
+	 }
+ 
+	 useSize := uint64(size) // size 已经是 uint64 类型
+ 
+	 storageResp := storage{
+		 Used:  useSize,
+		 Free:  allSize - useSize,
+		 Total: allSize,
+	 }
 
 	return Response{
 		Data: storageResp,

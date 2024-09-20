@@ -564,10 +564,13 @@ func InitMasterRouter() *gin.Engine {
 			// 用户
 			user := auth.Group("user")
 			{
+				util.Log().Info("user router ......")
 				// 当前登录用户信息
 				user.GET("me", controllers.UserMe)
 				// 存储信息
 				user.GET("storage", controllers.UserStorage)
+				// 用户中转空间
+				user.GET("space", controllers.UserSpace)
 				// 退出登录
 				user.DELETE("session", controllers.UserSignOut)
 				// Generate temp URL for copying client-side session, used in adding accounts
