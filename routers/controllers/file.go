@@ -11,6 +11,9 @@ import (
 	"github.com/cloudreve/Cloudreve/v3/pkg/serializer"
 	"github.com/cloudreve/Cloudreve/v3/service/explorer"
 	"github.com/gin-gonic/gin"
+
+	"github.com/cloudreve/Cloudreve/v3/pkg/util"
+	
 )
 
 func DownloadArchive(c *gin.Context) {
@@ -395,6 +398,7 @@ func GetUploadSession(c *gin.Context) {
 // SearchFile 搜索文件
 func SearchFile(c *gin.Context) {
 	var service explorer.ItemSearchService
+	util.Log().Info("search file....") // 使用 fmt.Sprintf
 	if err := c.ShouldBindUri(&service); err != nil {
 		c.JSON(200, ErrorResponse(err))
 		return
