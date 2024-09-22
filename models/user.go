@@ -47,6 +47,9 @@ type User struct {
 	OptionsSerialized UserOption `gorm:"-"`
 }
 
+
+
+
 func init() {
 	gob.Register(User{})
 }

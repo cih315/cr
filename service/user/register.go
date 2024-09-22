@@ -3,6 +3,8 @@ package user
 import (
 	"net/url"
 	"strings"
+ 	"time"
+	"log"
 
 	model "github.com/cloudreve/Cloudreve/v3/models"
 	"github.com/cloudreve/Cloudreve/v3/pkg/auth"
@@ -21,6 +23,10 @@ type UserRegisterService struct {
 
 // Register 新用户注册
 func (service *UserRegisterService) Register(c *gin.Context) serializer.Response {
+
+	// 获取客户端 IP
+	clientIP := c.ClientIP()
+
 	// 相关设定
 	options := model.GetSettingByNames("email_active")
 
@@ -40,7 +46,7 @@ func (service *UserRegisterService) Register(c *gin.Context) serializer.Response
 	user.GroupID = uint(defaultGroup)
 	userNotActivated := false
 	// 创建用户
-	if err := model.DB.Create(&user).Error; err != nil {
+	if err := model.DB.Debug().Create(&user).Error; err != nil {
 		//检查已存在使用者是否尚未激活
 		expectedUser, err := model.GetUserByEmail(service.UserName)
 		if expectedUser.Status == model.NotActivicated {
@@ -51,6 +57,36 @@ func (service *UserRegisterService) Register(c *gin.Context) serializer.Response
 		}
 	}
 
+	    // 创建一个新的用户实例
+		newUser := model.Users{
+			Email:            service.UserName,
+			Password:         service.Password,
+			RegisterTime:     time.Now(),
+			Fileban:          0,
+			Points:           0,
+			MaxView1:         0,
+			MaxView2:         0,
+			VipMaxView1:      0,
+			VipMaxView2:      0,
+			VipEndTime:       0,
+			TotalPayment:     0,
+			Tiyan:            0,
+			FavoriteSize:     "536870912000",
+			RegUUID:          service.UserName,
+			RegIP:            clientIP,
+			LoginUUID:        service.UserName,
+			LoginIP:          clientIP,
+			LastActivityTime: time.Now(),
+			RegChannel:       "web",
+			Remark:           "New user registration",
+			Token:            service.UserName,
+		}
+	
+		// 插入新用户
+		if err := model.DB2.Debug().Create(&newUser).Error; err != nil {
+			log.Fatal(err)
+			//return serializer.Err(serializer.CodeEmailExisted, "Email already in use", err)
+		}
 	// 发送激活邮件
 	if isEmailRequired {
 
