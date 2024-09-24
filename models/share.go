@@ -18,6 +18,7 @@ type Share struct {
 	gorm.Model
 	Password        string     // 分享密码，空值为非加密分享
 	IsDir           bool       // 原始资源是否为目录
+	IsMagnet		bool	   // 磁力资源
 	UserID          uint       // 创建用户ID
 	SourceID        uint       // 原始资源ID
 	Views           int        // 浏览数
@@ -48,6 +49,18 @@ func GetShareByHashID(hashID string) *Share {
 	if err != nil {
 		return nil
 	}
+	var share Share
+	result := DB.First(&share, id)
+	if result.Error != nil {
+		return nil
+	}
+
+	return &share
+}
+
+
+// GetShareByHashID 根据HashID查找分享
+func GetShareByID(id int) *Share {
 	var share Share
 	result := DB.First(&share, id)
 	if result.Error != nil {
@@ -118,9 +131,30 @@ func (share *Share) SourceFolder() *Folder {
 // SourceFile 获取源文件
 func (share *Share) SourceFile() *File {
 	if share.File.ID == 0 {
-		files, _ := GetFilesByIDs([]uint{share.SourceID}, share.UserID)
-		if len(files) > 0 {
-			share.File = files[0]
+		util.Log().Info("sourceFile Magnet = %t ", share.IsMagnet)
+		if(share.IsMagnet){
+			favorite, _ := GetFavoriteByID(int(share.SourceID))
+			util.Log().Info("sourceFile Magnet files= %s ", favorite)
+			
+			defaultFile := File{
+				Model: gorm.Model{
+					ID: uint(favorite.ID), // 示例 ID
+				},
+				Name: favorite.Name, // 示例文件名
+				SourceName: favorite.Name,
+				UserID: share.UserID,
+				Size: favorite.Size,
+				FolderID: 999999,
+				
+			}
+			share.File = defaultFile
+		//	share.File = files
+		} else {
+			files, _ := GetFilesByIDs([]uint{share.SourceID}, share.UserID)
+			if len(files) > 0 {
+				share.File = files[0]
+				util.Log().Info("sourceFile files= %d ", share.File.ID)
+			}
 		}
 	}
 	return &share.File
@@ -198,21 +232,24 @@ func DeleteShareBySourceIDs(sources []uint, isDir bool) error {
 
 // ListShares 列出UID下的分享
 func ListShares(uid uint, page, pageSize int, order string, publicOnly bool) ([]Share, int) {
+
+	util.Log().Info("list shares..")
+
 	var (
 		shares []Share
 		total  int
 	)
 	dbChain := DB
-	dbChain = dbChain.Where("user_id = ?", uid)
+	dbChain = dbChain.Debug().Where("user_id = ?", uid)
 	if publicOnly {
-		dbChain = dbChain.Where("password = ?", "")
+		dbChain = dbChain.Debug().Where("password = ?", "")
 	}
 
 	// 计算总数用于分页
-	dbChain.Model(&Share{}).Count(&total)
+	dbChain.Debug().Model(&Share{}).Count(&total)
 
 	// 查询记录
-	dbChain.Limit(pageSize).Offset((page - 1) * pageSize).Order(order).Find(&shares)
+	dbChain.Debug().Limit(pageSize).Offset((page - 1) * pageSize).Order(order).Find(&shares)
 	return shares, total
 }
 

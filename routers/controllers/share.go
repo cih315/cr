@@ -5,6 +5,7 @@ import (
 	"path"
 	"strings"
 
+
 	model "github.com/cloudreve/Cloudreve/v3/models"
 	"github.com/cloudreve/Cloudreve/v3/pkg/serializer"
 	"github.com/cloudreve/Cloudreve/v3/pkg/util"
@@ -15,10 +16,22 @@ import (
 // CreateShare 创建分享
 func CreateShare(c *gin.Context) {
 	var service share.ShareCreateService
+	util.Log().Info("share.....") // 使用 fmt.Sprintf
+
 	if err := c.ShouldBindJSON(&service); err == nil {
+		util.Log().Info("share create.....") // 使用 fmt.Sprintf
+
+
 		res := service.Create(c)
+
+		util.Log().Info("share create end.....") // 使用 fmt.Sprintf
+
+		//log.Fatal(res)
 		c.JSON(200, res)
 	} else {
+		util.Log().Info("share else.....") // 使用 fmt.Sprintf
+
+
 		c.JSON(200, ErrorResponse(err))
 	}
 }

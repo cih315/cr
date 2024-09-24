@@ -50,12 +50,19 @@ type ShareListService struct {
 
 // Get 获取给定用户的分享
 func (service *ShareUserGetService) Get(c *gin.Context) serializer.Response {
+
+	util.Log().Info("shares get11..")
+
 	// 取得用户
 	userID, _ := c.Get("object_id")
+
+
 	user, err := model.GetActiveUserByID(userID.(uint))
 	if err != nil || user.OptionsSerialized.ProfileOff {
 		return serializer.Err(serializer.CodeNotFound, "", err)
 	}
+
+	
 
 	// 列出分享
 	hotNum := model.GetIntSetting("hot_share_num", 10)
@@ -118,6 +125,8 @@ func (service *ShareListService) List(c *gin.Context, user *model.User) serializ
 func (service *ShareGetService) Get(c *gin.Context) serializer.Response {
 	shareCtx, _ := c.Get("share")
 	share := shareCtx.(*model.Share)
+	
+	util.Log().Info("shares get22.. %s", share)
 
 	// 是否已解锁
 	unlocked := true

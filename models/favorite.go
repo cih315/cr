@@ -119,3 +119,17 @@ func GetTotalSizeByUID(uid int) (float64, error) {
 	util.Log().Info(fmt.Sprintf("Use Size 111: %f",result.TotalSize)) // 使用 fmt.Sprintf
     return result.TotalSize, err
 }
+
+// GetFavoriteByID 根据ID获取指定的收藏数据行
+func GetFavoriteByID(id int) (Favorite, error) {
+    var favorite Favorite
+    err := DB2.Debug().Model(&Favorite{}).Where("id = ?", id).First(&favorite).Error
+
+    if err != nil {
+        util.Log().Info(fmt.Sprintf("Error retrieving favorite with ID %d: %v", id, err))
+        return favorite, err // Return the favorite and the error
+    }
+
+    util.Log().Info(fmt.Sprintf("Retrieved favorite: %+v", favorite)) // Log the retrieved favorite
+    return favorite, nil // Return the favorite and nil error
+}

@@ -130,12 +130,43 @@ func GetFilesByIDsFromTX(tx *gorm.DB, ids []uint, uid uint) ([]File, error) {
 	var files []File
 	var result *gorm.DB
 	if uid == 0 {
-		result = tx.Where("id in (?)", ids).Find(&files)
+		result = tx.Debug().Where("id in (?)", ids).Find(&files)
 	} else {
-		result = tx.Where("id in (?) AND user_id = ?", ids, uid).Find(&files)
+		result = tx.Debug().Where("id in (?) AND user_id = ?", ids, uid).Find(&files)
 	}
 	return files, result.Error
 }
+
+
+// GetFilesByIDsAndName 根据文件ID和名称批量获取文件,
+// UID为0表示忽略用户，只根据文件ID和名称检索
+func GetFilesByIDsAndName(ids []uint, name string, uid uint) ([]File, error) {
+    return GetFilesByIDsAndNameFromTX(DB, ids, name, uid)
+}
+
+// GetFilesByIDsAndNameFromTX 根据文件ID和名称批量获取文件（事务版本）
+func GetFilesByIDsAndNameFromTX(tx *gorm.DB, ids []uint, name string, uid uint) ([]File, error) {
+    var files []File
+    var result *gorm.DB
+
+    // 构建查询条件
+    query := tx.Where("id in (?)", ids)
+
+    // 添加名称条件
+    if name != "" {
+        query = query.Where("name = ?", name)
+    }
+
+    // 根据用户ID添加条件
+    if uid == 0 {
+        result = query.Find(&files)
+    } else {
+        result = query.Where("user_id = ?", uid).Find(&files)
+    }
+
+    return files, result.Error
+}
+
 
 // GetFilesByKeywords 根据关键字搜索文件,
 // UID为0表示忽略用户，只根据文件ID检索. 如果 parents 非空， 则只限制在 parent 包含的目录下搜索

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"strconv"
 
 	model "github.com/cloudreve/Cloudreve/v3/models"
 	"github.com/cloudreve/Cloudreve/v3/pkg/serializer"
@@ -33,6 +34,11 @@ func ShareOwner() gin.HandlerFunc {
 	}
 }
 
+func isNumeric(s string) bool {
+	_, err := strconv.Atoi(s)
+	return err == nil
+}
+
 // ShareAvailable 检查分享是否可用
 func ShareAvailable() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -43,17 +49,33 @@ func ShareAvailable() gin.HandlerFunc {
 			user = model.NewAnonymousUser()
 		}
 
-		share := model.GetShareByHashID(c.Param("id"))
+		if(isNumeric(c.Param("id"))){
+			util.Log().Info("ShareAvailable magnet...")
+			SourceID64, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 
-		if share == nil || !share.IsAvailable() {
-			c.JSON(200, serializer.Err(serializer.CodeShareLinkNotFound, "", nil))
-			c.Abort()
-			return
+			SourceID := uint(SourceID64)
+
+			share := model.GetShareByID(int(SourceID))
+			
+			c.Set("user", user)
+			c.Set("share", share)
+			c.Next()
+	
+			} else{
+			share := model.GetShareByHashID(c.Param("id"))
+			if share == nil || !share.IsAvailable() {
+				c.JSON(200, serializer.Err(serializer.CodeShareLinkNotFound, "", nil))
+				c.Abort()
+				return
+			}
+			c.Set("user", user)
+			c.Set("share", share)
+			c.Next()
+	
 		}
 
-		c.Set("user", user)
-		c.Set("share", share)
-		c.Next()
+
+
 	}
 }
 
