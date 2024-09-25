@@ -64,7 +64,7 @@ type FavoriteObject struct {
 // GetFavoriteListByUID 根据uid获取收藏列表
 func GetFavoriteListByUID(uid int) CustomResponse {
     var favorites []Favorite
-    err := DB2.Debug().Where("uid = ?", uid).Find(&favorites).Error
+    err := DB2.Where("uid = ?", uid).Find(&favorites).Error
     if err != nil {
         return CustomResponse{
             Code: 1,
@@ -114,7 +114,7 @@ func GetTotalSizeByUID(uid int) (float64, error) {
     }
 
     var result Result
-    err := DB2.Debug().Model(&Favorite{}).Where("uid = ?", uid).Select("SUM(size) as total_size").Scan(&result).Error
+    err := DB2.Model(&Favorite{}).Where("uid = ?", uid).Select("SUM(size) as total_size").Scan(&result).Error
 
 	util.Log().Info(fmt.Sprintf("Use Size 111: %f",result.TotalSize)) // 使用 fmt.Sprintf
     return result.TotalSize, err
@@ -123,7 +123,7 @@ func GetTotalSizeByUID(uid int) (float64, error) {
 // GetFavoriteByID 根据ID获取指定的收藏数据行
 func GetFavoriteByID(id int) (Favorite, error) {
     var favorite Favorite
-    err := DB2.Debug().Model(&Favorite{}).Where("id = ?", id).First(&favorite).Error
+    err := DB2.Model(&Favorite{}).Where("id = ?", id).First(&favorite).Error
 
     if err != nil {
         util.Log().Info(fmt.Sprintf("Error retrieving favorite with ID %d: %v", id, err))

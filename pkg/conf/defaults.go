@@ -35,8 +35,11 @@ var DatabaseConfig = &database{
 	Charset:    "utf8",
 	DBFile:     "cloudreve.db",
 	Host:       "localhost",
-	User:       "root",
-	Password:   "1qaz2wsx",
+	//User:       "root",
+	//Password:   "1qaz2wsx",
+	User:       "pan",
+	Password:   "R5mzZNCqpkdrFvM",
+	//Password: "u179mtehilxgecay653y"
 	Port:       3306,
 	Name:       "pan",
 	UnixSocket: false,

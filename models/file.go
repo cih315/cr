@@ -130,9 +130,9 @@ func GetFilesByIDsFromTX(tx *gorm.DB, ids []uint, uid uint) ([]File, error) {
 	var files []File
 	var result *gorm.DB
 	if uid == 0 {
-		result = tx.Debug().Where("id in (?)", ids).Find(&files)
+		result = tx.Where("id in (?)", ids).Find(&files)
 	} else {
-		result = tx.Debug().Where("id in (?) AND user_id = ?", ids, uid).Find(&files)
+		result = tx.Where("id in (?) AND user_id = ?", ids, uid).Find(&files)
 	}
 	return files, result.Error
 }

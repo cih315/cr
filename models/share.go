@@ -134,7 +134,7 @@ func (share *Share) SourceFile() *File {
 		util.Log().Info("sourceFile Magnet = %t ", share.IsMagnet)
 		if(share.IsMagnet){
 			favorite, _ := GetFavoriteByID(int(share.SourceID))
-			util.Log().Info("sourceFile Magnet files= %s ", favorite)
+			//util.Log().Info("sourceFile Magnet files= %s ", favorite)
 			
 			defaultFile := File{
 				Model: gorm.Model{
@@ -153,7 +153,7 @@ func (share *Share) SourceFile() *File {
 			files, _ := GetFilesByIDs([]uint{share.SourceID}, share.UserID)
 			if len(files) > 0 {
 				share.File = files[0]
-				util.Log().Info("sourceFile files= %d ", share.File.ID)
+				//util.Log().Info("sourceFile files= %d ", share.File.ID)
 			}
 		}
 	}
@@ -240,16 +240,16 @@ func ListShares(uid uint, page, pageSize int, order string, publicOnly bool) ([]
 		total  int
 	)
 	dbChain := DB
-	dbChain = dbChain.Debug().Where("user_id = ?", uid)
+	dbChain = dbChain.Where("user_id = ?", uid)
 	if publicOnly {
-		dbChain = dbChain.Debug().Where("password = ?", "")
+		dbChain = dbChain.Where("password = ?", "")
 	}
 
 	// 计算总数用于分页
-	dbChain.Debug().Model(&Share{}).Count(&total)
+	dbChain.Model(&Share{}).Count(&total)
 
 	// 查询记录
-	dbChain.Debug().Limit(pageSize).Offset((page - 1) * pageSize).Order(order).Find(&shares)
+	dbChain.Limit(pageSize).Offset((page - 1) * pageSize).Order(order).Find(&shares)
 	return shares, total
 }
 

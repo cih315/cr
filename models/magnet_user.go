@@ -67,7 +67,7 @@ func CheckEmail(email string) (bool, error) {
 // GetMagnetUserByEmail 根据邮箱查找并返回 MagnetUser
 func GetMagnetUserByEmail(email string) (MagnetUser, error) {
     var magnetUser MagnetUser
-    result := DB2.Debug().Where("email = ?", email).First(&magnetUser)
+    result := DB2.Where("email = ?", email).First(&magnetUser)
 
     // 检查是否找到用户
     if result.Error != nil {

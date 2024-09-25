@@ -2,7 +2,7 @@ package serializer
 
 import (
 	"time"
-
+	"github.com/cloudreve/Cloudreve/v3/pkg/util"
 	model "github.com/cloudreve/Cloudreve/v3/models"
 	"github.com/cloudreve/Cloudreve/v3/pkg/hashid"
 )
@@ -30,6 +30,7 @@ type shareCreator struct {
 type shareSource struct {
 	Name string `json:"name"`
 	Size uint64 `json:"size"`
+	FolderID uint `json:"folderid"`
 }
 
 // myShareItem 我的分享列表条目
@@ -124,10 +125,16 @@ func BuildShareResponse(share *model.Share, unlocked bool) Share {
 		}
 	} else {
 		source := share.SourceFile()
+
+		
 		resp.Source = &shareSource{
 			Name: source.Name,
 			Size: source.Size,
+			FolderID: source.FolderID,
 		}
+
+		util.Log().Info("resp.Source: %s", resp) // 使用 fmt.Sprintf
+
 	}
 
 	return resp
