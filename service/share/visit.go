@@ -126,7 +126,7 @@ func (service *ShareGetService) Get(c *gin.Context) serializer.Response {
 	shareCtx, _ := c.Get("share")
 	share := shareCtx.(*model.Share)
 	
-	util.Log().Info("shares get22.. %s", share)
+	util.Log().Info("shares get22.. %d", share.ID)
 
 	// 是否已解锁
 	unlocked := true

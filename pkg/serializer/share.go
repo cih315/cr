@@ -19,6 +19,7 @@ type Share struct {
 	Preview    bool          `json:"preview"`
 	Creator    *shareCreator `json:"creator,omitempty"`
 	Source     *shareSource  `json:"source,omitempty"`
+	SourceID   uint          `json:"source_id,omitempty"` // Add this line
 }
 
 type shareCreator struct {
@@ -31,6 +32,7 @@ type shareSource struct {
 	Name string `json:"name"`
 	Size uint64 `json:"size"`
 	FolderID uint `json:"folderid"`
+	Hash string `json:"hash"`
 }
 
 // myShareItem 我的分享列表条目
@@ -101,18 +103,23 @@ func BuildShareResponse(share *model.Share, unlocked bool) Share {
 			GroupName: creator.Group.Name,
 		},
 		CreateDate: share.CreatedAt,
+		SourceID: hashid.ShareID, // Add this line
 	}
+
+	favorite, _ := model.GetFavoriteByID(int(share.SourceID))
+	util.Log().Info("favorite: %s", favorite.Hash) // 使用 fmt.Sprintf
+
 
 	// 未解锁时只返回基本信息
 	if !unlocked {
 		return resp
 	}
-
+	
 	resp.IsDir = share.IsDir
 	resp.Downloads = share.Downloads
 	resp.Views = share.Views
 	resp.Preview = share.PreviewEnabled
-
+	
 	if share.Expires != nil {
 		resp.Expire = share.Expires.Unix() - time.Now().Unix()
 	}
@@ -125,18 +132,18 @@ func BuildShareResponse(share *model.Share, unlocked bool) Share {
 		}
 	} else {
 		source := share.SourceFile()
-
-		
 		resp.Source = &shareSource{
 			Name: source.Name,
 			Size: source.Size,
 			FolderID: source.FolderID,
+			Hash: favorite.Hash,
+
 		}
 
-		util.Log().Info("resp.Source: %s", resp) // 使用 fmt.Sprintf
+		
 
 	}
-
+	util.Log().Info("resp.Source: %s", resp) // 使用 fmt.Sprintf
 	return resp
 
 }
